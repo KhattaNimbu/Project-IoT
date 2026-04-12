@@ -1,0 +1,181 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /**
+   * Tailwind CSS theme
+   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * A different format will require also updating the theme in tailwind.config.ts.
+  */
+  :root {
+    --background: 210 50% 98%;
+    --foreground: 212 32% 18%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 212 32% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 212 32% 18%;
+
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 271 91% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 14% 83%;
+    --muted-foreground: 212 12% 40%;
+
+    --accent: 48 96% 53%;
+    --accent-foreground: 212 32% 18%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 19% 89%;
+    --input: 210 19% 93%;
+    --ring: 199 89% 48%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* AQI Specific Colors */
+    --aqi-good: 124 76% 45%;
+    --aqi-fair: 48 96% 53%;
+    --aqi-moderate: 39 100% 47%;
+    --aqi-poor: 0 84% 50%;
+    --aqi-very-poor: 280 85% 40%;
+  }
+
+  .dark {
+    --background: 214 35% 15%;
+    --foreground: 210 40% 98%;
+
+    --card: 214 35% 22%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 214 35% 22%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 199 89% 48%;
+    --primary-foreground: 214 35% 15%;
+
+    --secondary: 271 91% 55%;
+    --secondary-foreground: 214 35% 15%;
+
+    --muted: 214 20% 30%;
+    --muted-foreground: 210 20% 70%;
+
+    --accent: 48 96% 53%;
+    --accent-foreground: 214 35% 15%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 20% 30%;
+    --input: 214 20% 35%;
+    --ring: 199 89% 48%;
+    --sidebar-background: 214 35% 15%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 214 35% 15%;
+    --sidebar-accent: 214 20% 30%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214 20% 30%;
+    --sidebar-ring: 199 89% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-['Plus_Jakarta_Sans'];
+  }
+
+  :where(p, span, li, h1, h2, h3, h4, h5, h6, a, button, label, td, th) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  pre,
+  code {
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  h1 {
+    @apply text-4xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-bold tracking-tight;
+  }
+
+  h3 {
+    @apply text-lg font-semibold;
+  }
+}
+
+@layer components {
+  .aqi-gauge {
+    @apply relative w-full h-full rounded-full flex items-center justify-center;
+  }
+
+  .metric-card {
+    @apply bg-card rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  .stat-value {
+    @apply text-4xl font-bold text-primary;
+  }
+
+  .stat-label {
+    @apply text-sm font-medium text-muted-foreground uppercase tracking-wide;
+  }
+
+  .nav-link {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors hover:bg-primary/10 text-foreground;
+  }
+
+  .nav-link.active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .alert-badge {
+    @apply inline-block px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .alert-badge.critical {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+  }
+
+  .alert-badge.warning {
+    @apply bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300;
+  }
+
+  .alert-badge.info {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300;
+  }
+}
