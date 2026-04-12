@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import axios from "axios";
+import api from "@/lib/api";
 import { AlertTriangle, AlertCircle, Bell, Clock, MapPin } from "lucide-react";
 import AnimatedBackground from "@/components/AnimatedBackground";
 
@@ -22,7 +22,7 @@ export default function Alerts() {
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const res = await axios.get("/api/alerts");
+        const res = await api.get("/alerts");
         // Maps backend alerts into frontend Alert[] format
         const mappedAlerts: Alert[] = res.data.map((a: any, index: number) => {
           let type: "critical" | "warning" | "info" = "info";

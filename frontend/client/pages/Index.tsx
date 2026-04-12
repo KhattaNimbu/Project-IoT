@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import Layout from "@/components/Layout";
-import axios from "axios";
+import api from "@/lib/api";
 import {
   LineChart,
   Line,
@@ -124,7 +124,7 @@ export default function Index() {
   // ── Data Fetching ─────────────────────────────────────────
   const fetchSummary = async () => {
     try {
-      const res = await axios.get("/api/summary");
+      const res = await api.get("/summary");
       setNodes(res.data);
       if (res.data.length > 0 && !selectedNode) {
         setSelectedNode(res.data[0].nodeId);
@@ -151,8 +151,8 @@ export default function Index() {
       if (!selectedNode) {
         throw new Error("No node selected");
       }
-      const res = await axios.get(
-        `/api/nodes/${selectedNode}/data?range=${timeRange}`
+      const res = await api.get(
+        `/nodes/${selectedNode}/data?range=${timeRange}`
       );
       let history = res.data;
 
@@ -211,8 +211,8 @@ export default function Index() {
       return;
     }
     try {
-      const res = await axios.get(
-        `/api/nodes/${compareNode}/data?range=${timeRange}`
+      const res = await api.get(
+        `/nodes/${compareNode}/data?range=${timeRange}`
       );
       let history = res.data;
       if (history.length === 0) throw new Error("No compare data");
@@ -253,8 +253,8 @@ export default function Index() {
   const fetchDailyStats = async () => {
     if (!selectedNode) return;
     try {
-      const res = await axios.get(
-        `/api/nodes/${selectedNode}/daily-stats`
+      const res = await api.get(
+        `/nodes/${selectedNode}/daily-stats`
       );
       setDailyStats(res.data);
     } catch (err) {

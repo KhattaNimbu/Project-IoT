@@ -14,7 +14,24 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
-app.use(cors());
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+      .map(o => o.trim())
+      .map(o => (o.startsWith('http') ? o : `https://${o}`))
+  : [];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (MQTT, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    console.warn('CORS blocked origin:', origin);
+    return callback(null, true); // permissive for now — tighten later
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 // ─── MongoDB ──────────────────────────────────────────────────────────────────
@@ -186,7 +203,7 @@ app.get('/api/nodes/:id/latest', async (req, res) => {
 app.get('/api/nodes/:id/data', async (req, res) => {
   try {
     const range = req.query.range || '24h';
-    const rangeMap = { '24h': 24, '7d': 168, '30d': 720 };
+    const rangeMap = { '1h': 1, '24h': 24, '7d': 168, '30d': 720 };
     const hours = rangeMap[range] || 24;
     const since = new Date(Date.now() - hours * 3600 * 1000);
 
@@ -229,7 +246,7 @@ app.get('/api/summary', async (req, res) => {
 app.get('/api/nodes/:id/stats', async (req, res) => {
   try {
     const range = req.query.range || '7d';
-    const rangeMap = { '24h': 24, '7d': 168, '30d': 720 };
+    const rangeMap = { '1h': 1, '24h': 24, '7d': 168, '30d': 720 };
     const hours = rangeMap[range] || 168;
     const since = new Date(Date.now() - hours * 3600 * 1000);
 
@@ -251,6 +268,49 @@ app.get('/api/nodes/:id/stats', async (req, res) => {
     ]);
 
     res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/nodes/:id/daily-stats — today's min/max/avg for a node
+app.get('/api/nodes/:id/daily-stats', async (req, res) => {
+  try {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const readings = await Reading
+      .find({ nodeId: req.params.id, timestamp: { $gte: todayStart } })
+      .select('aqi temperature humidity');
+
+    if (readings.length === 0) {
+      return res.json({
+        aqi: { min: 0, max: 0, avg: 0 },
+        temp: { min: 0, max: 0, avg: 0 },
+        humidity: { min: 0, max: 0, avg: 0 },
+        count: 0,
+      });
+    }
+
+    const aqiVals = readings.map(r => r.aqi).filter(v => v != null);
+    const tempVals = readings.map(r => r.temperature).filter(v => v != null);
+    const humVals = readings.map(r => r.humidity).filter(v => v != null);
+
+    const minMaxAvg = (arr) => {
+      if (arr.length === 0) return { min: 0, max: 0, avg: 0 };
+      return {
+        min: Math.round(Math.min(...arr) * 10) / 10,
+        max: Math.round(Math.max(...arr) * 10) / 10,
+        avg: Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10,
+      };
+    };
+
+    res.json({
+      aqi: minMaxAvg(aqiVals),
+      temp: minMaxAvg(tempVals),
+      humidity: minMaxAvg(humVals),
+      count: readings.length,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
