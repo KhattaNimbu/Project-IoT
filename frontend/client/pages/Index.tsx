@@ -92,6 +92,7 @@ export default function Index() {
   const [nodes, setNodes] = useState<any[]>([]);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [isOffline, setIsOffline] = useState(false);
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
 
   const [currentAQI, setCurrentAQI] = useState(0);
   const [currentTemp, setCurrentTemp] = useState(0);
@@ -159,6 +160,7 @@ export default function Index() {
       if (history.length === 0) throw new Error("No data");
 
       setIsOffline(false);
+      setConnectionAttempts(0); // Reset on success
       history = history.sort(
         (a: any, b: any) =>
           new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
@@ -190,7 +192,12 @@ export default function Index() {
       }
     } catch (err) {
       console.error("History fetch error:", err);
-      setIsOffline(true);
+      // Only mark offline after 3 failed attempts (waits ~30 seconds)
+      const attempts = connectionAttempts + 1;
+      setConnectionAttempts(attempts);
+      if (attempts >= 3) {
+        setIsOffline(true);
+      }
       setAqiTrendData((prev) =>
         prev.length > 0 ? prev : generateRandomTrend(50, 150)
       );

@@ -18,7 +18,7 @@ const API_BASE = rawBase.replace(/\/+$/, "");
 
 const api = axios.create({
   baseURL: API_BASE || "/api", // fallback for local dev → uses Vite proxy
-  timeout: 15000,
+  timeout: 30000, // Increased timeout to 30s to wait for live server
 });
 
 export default api;
